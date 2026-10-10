@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import sys
 import logging
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
@@ -108,7 +109,7 @@ class Config:
     DEFAULT_VERBOSE = False
 
     """默认域名"""
-    DOMAINS = ["glados.cloud", "railgun.info"]
+    DOMAINS = ["glados.rocks"]
 
     """兑换计划列表"""
     EXCHANGE_PLANS = {
@@ -348,7 +349,10 @@ class API:
             result["status"] = "签到成功"
             result["points"] = points
             result["message"] = message
-        elif code == CheckinStatus.REPEAT.value:
+        elif code == CheckinStatus.REPEAT.value and any(
+            marker in str(message).lower()
+            for marker in ("checkin repeats", "already checked in", "already checkin", "重复签到", "已经签到", "已签到")
+        ):
             self._log("info", LogEmoji.REPEAT, f"{{ code : {code}, message : {message} }}", force=True)
             result["code"] = CheckinStatus.REPEAT
             result["status"] = "重复签到"
@@ -585,6 +589,8 @@ logger = init_logger()
 
 def main():
     """主函数"""
+    config = None
+    exit_code = 1
     try:
         # 1. 加载配置
         logger.info(f"{LogEmoji.START} 步骤 1: 加载配置")
@@ -598,6 +604,11 @@ def main():
             logger.info(f"{LogEmoji.START} 步骤 2: 执行签到")
             checker = Checker(config)
             checker.checkin_all()
+            if checker.results and all(
+                result.code in (CheckinStatus.SUCCESS, CheckinStatus.REPEAT)
+                for result in checker.results
+            ):
+                exit_code = 0
 
             # 3. 格式化结果
             logger.info(f"{LogEmoji.START} 步骤 3: 格式化结果")
@@ -610,10 +621,12 @@ def main():
 
     # 4. 发送推送
     logger.info(f"{LogEmoji.START} 步骤 4: 发送推送")
-    push_service = PushService(config if "config" in locals() else "")
-    push_service.send(title, content)
+    if config is not None:
+        push_service = PushService(config)
+        push_service.send(title, content)
     logger.info(f"{LogEmoji.END} 签到完成")
+    return exit_code
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
