@@ -2,6 +2,11 @@ name: Daily GLaDOS check-in
 
 on:
   workflow_dispatch:
+    inputs:
+      validation_only:
+        description: Validate installation without submitting a check-in
+        type: boolean
+        default: false
   schedule:
     # 09:18 Beijing time; GitHub may delay scheduled jobs.
     - cron: '18 1 * * *'
@@ -30,6 +35,7 @@ jobs:
       - name: Check result handling
         run: python -m unittest discover -s tests -v
       - name: Run check-in
+        if: ${{ !inputs.validation_only }}
         run: python checkin.py
         env:
           GLADOS_COOKIES: ${{ secrets.GLADOS_COOKIES }}

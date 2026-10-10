@@ -351,7 +351,7 @@ class API:
             result["message"] = message
         elif code == CheckinStatus.REPEAT.value and any(
             marker in str(message).lower()
-            for marker in ("checkin repeats", "already checked in", "already checkin", "重复签到", "已经签到", "已签到")
+            for marker in ("checkin repeats", "already checked in", "already checkin", "today's observation logged", "重复签到", "已经签到", "已签到")
         ):
             self._log("info", LogEmoji.REPEAT, f"{{ code : {code}, message : {message} }}", force=True)
             result["code"] = CheckinStatus.REPEAT

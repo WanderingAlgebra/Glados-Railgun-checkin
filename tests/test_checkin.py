@@ -11,7 +11,9 @@ class CheckinTests(unittest.TestCase):
         cases = [
             ({"code": 0, "points": 1, "message": "OK"}, checkin.CheckinStatus.SUCCESS),
             ({"code": 1, "message": "Checkin Repeats! Please Try Tomorrow"}, checkin.CheckinStatus.REPEAT),
+            ({"code": 1, "message": "Today's observation logged. Return tomorrow for more points."}, checkin.CheckinStatus.REPEAT),
             ({"code": 1, "message": "not logged in"}, checkin.CheckinStatus.FAILURE),
+            ({"code": 1, "message": "Cookie expired"}, checkin.CheckinStatus.FAILURE),
             ({"code": 4, "message": "device-mismatch"}, checkin.CheckinStatus.FAILURE),
             (None, checkin.CheckinStatus.FAILURE),
         ]
