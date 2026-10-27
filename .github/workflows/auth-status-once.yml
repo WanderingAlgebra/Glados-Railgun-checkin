@@ -1,4 +1,4 @@
-name: GLaDOS auth status comparison
+name: GLaDOS updated-session status once
 
 on:
   push:
@@ -105,9 +105,5 @@ jobs:
           
           
           if __name__ == "__main__":
-              for label, ua in (("default", DEFAULT_UA), ("observed_browser", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0")):
-                  os.environ["GLADOS_USER_AGENT"] = ua
-                  result = probe()
-                  result["case"] = label
-                  print(json.dumps(result, sort_keys=True))
+              raise SystemExit(main())
           PY
